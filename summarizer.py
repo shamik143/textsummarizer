@@ -1,4 +1,3 @@
-
 import re
 import nltk
 import numpy as np
@@ -10,8 +9,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import torch
 from transformers import pipeline
-from evaluate import load
-import pandas as pd
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -44,16 +41,15 @@ def extractive_summary(text, top_n=3):
 
 # Abstractive summarizer
 abstractive_model = pipeline("summarization", model="facebook/bart-large-cnn")
+
 def abstractive_summary(text, max_len=130):
     chunks = []
     words = text.split()
 
     for i in range(0, len(words), 800):
         chunk = " ".join(words[i:i+800]).strip()
-
-        if not chunk:  # 🚨 Skip empty or whitespace-only chunks
+        if not chunk:
             continue
-
         try:
             summary = abstractive_model(chunk, max_length=max_len, min_length=30, do_sample=False)[0]['summary_text']
             chunks.append(summary)
@@ -62,37 +58,3 @@ def abstractive_summary(text, max_len=130):
             continue
 
     return " ".join(chunks) if chunks else "⚠️ Unable to generate summary due to input issues."
-
-
-# ROUGE scoring
-rouge = load("rouge")
-
-def compute_rouge(pred, ref):
-    return rouge.compute(predictions=[pred], references=[ref])
-
-# Batch summarization and export
-def batch_summarize(dataset, num_samples=20):
-    results = []
-    for i in range(num_samples):
-        try:
-            article = dataset[i]['article']
-            ref = dataset[i]['highlights']
-            cleaned = clean_text(article)
-            ext = extractive_summary(cleaned, top_n=3)
-            short_article = " ".join(article.split()[:1024])
-            abs_sum = abstractive_summary(short_article)
-            rouge_ext = compute_rouge(ext, ref)
-            rouge_abs = compute_rouge(abs_sum, ref)
-            results.append({
-                "article": article,
-                "reference_summary": ref,
-                "extractive_summary": ext,
-                "abstractive_summary": abs_sum,
-                "rouge1_ext": rouge_ext['rouge1'],
-                "rouge1_abs": rouge_abs['rouge1']
-            })
-        except Exception as e:
-            print(f"Error on {i}: {e}")
-    df = pd.DataFrame(results)
-    df.to_csv("summarization_results.csv", index=False)
-    return df
