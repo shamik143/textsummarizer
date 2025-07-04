@@ -8,4 +8,4 @@ torch
 beautifulsoup4
 PyPDF2
 requests
-evaluate
+
