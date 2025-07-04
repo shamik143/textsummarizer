@@ -1,0 +1,10 @@
+
+streamlit
+transformers
+scikit-learn
+nltk
+networkx
+beautifulsoup4
+PyPDF2
+requests
+evaluate
