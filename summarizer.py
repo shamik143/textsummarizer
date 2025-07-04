@@ -8,6 +8,7 @@ from nltk.tokenize import word_tokenize, sent_tokenize
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import torch
 from transformers import pipeline
 from evaluate import load
 import pandas as pd
