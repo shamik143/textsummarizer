@@ -4,6 +4,7 @@ transformers
 scikit-learn
 nltk
 networkx
+torch
 beautifulsoup4
 PyPDF2
 requests
