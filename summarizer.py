@@ -21,7 +21,13 @@ def clean_text(text):
     text = re.sub(r'\s+', ' ', text)
     text = re.sub(r"[^a-zA-Z0-9.,!?\'\`]", " ", text)
     return text.strip()
-
+def clean_grammar_output(text):
+    text = re.sub(r'(?<=[.?!])\s+([a-z])', lambda m: ' ' + m.group(1).upper(), text.capitalize())
+    text = re.sub(r'\bai\b', 'AI', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bdarpa\b', 'DARPA', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bjohn grisham\b', 'John Grisham', text, flags=re.IGNORECASE)
+    text = re.sub(r'\bjonathan franzen\b', 'Jonathan Franzen', text, flags=re.IGNORECASE)
+    return text
 # Extractive summarizer
 def extractive_summary(text, top_n=3):
     sentences = sent_tokenize(text)
@@ -57,4 +63,5 @@ def abstractive_summary(text, max_len=130):
             print(f"⚠️ Skipping chunk {i//800 + 1} due to error: {e}")
             continue
 
-    return " ".join(chunks) if chunks else "⚠️ Unable to generate summary due to input issues."
+    final = " ".join(chunks)
+    return clean_grammar_output(final) if final else "⚠️ Unable to generate summary due to input issues."
